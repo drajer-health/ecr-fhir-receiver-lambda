@@ -123,12 +123,13 @@ Resource Path*: $process-message
 
 9) Select $process-message and then click "Actions -> Create Method"
 
-10) Select "POST" and click on tick mark
+10) Select "ANY" and click on tick mark
 
 11) Enter
 
 ```
 	Integration Type: Lambda Function
+	Use Lambda Proxy Integration: Checked 
 	Lambda Function: ecrFHIRReceiverLambda
 
 ```
