@@ -60,6 +60,10 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 
 			// Check return status and throw Runtime exception for return code != 200
 			if (response.getStatusLine().getStatusCode() != 200) {
+				logger.log("Post Message failed with Code: " +response.getStatusLine().getStatusCode());
+				logger.log("Post Message failed reason: " +response.getStatusLine().getReasonPhrase());
+				logger.log("Post Message response body: "+response.toString());
+				
 				throw new RuntimeException("Failed : HTTP error code : " + response.getStatusLine().getStatusCode());
 			}
 
@@ -77,8 +81,10 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 			httpClient.getConnectionManager().shutdown();
 
 		} catch (ClientProtocolException e) {
+			logger.log("Failed with ClientProtocolException "+e.getMessage() );
 			throw new RuntimeException("Failed with ClientProtocolException: " + e.getMessage());
 		} catch (IOException e) {
+			logger.log("Failed with IOException "+e.getMessage());
 			throw new RuntimeException("Failed with IOException: " + e.getMessage());
 		} finally {
 //			reader.close();
