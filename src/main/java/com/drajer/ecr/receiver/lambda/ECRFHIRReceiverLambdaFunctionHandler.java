@@ -52,34 +52,46 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 			postRequest.setEntity(input);
 			postRequest.addHeader("Authorization", authHeader);
 
-			logger.log("Forwarding the request to FHIR Validator ");
+			logger.log("Forwarding the request to FHIR Validator with Auth Header ");
+			logger.log("Request Body Content Size "+input.getContentLength());
 
 			// logger.log(inputStrBuilder.toString());
 
-			HttpResponse response = httpClient.execute(postRequest);
-
+			HttpResponse response = null;
+			try {
+				logger.log("Making the HTTP Post to "+httpPostUrl );
+				response = httpClient.execute(postRequest);
+				logger.log("HTTP Post completed " );
+			}catch(Exception e) {
+				logger.log(" In HTTP Post Exception "+e.getLocalizedMessage());
+				e.printStackTrace();
+			}finally {
+				logger.log("Closing HTTP Connection to "+httpPostUrl);
+				httpClient.getConnectionManager().shutdown();
+			}
+			
 			// Check return status and throw Runtime exception for return code != 200
-			if (response.getStatusLine().getStatusCode() != 200) {
+			if (response !=null && response.getStatusLine().getStatusCode() != 200) {
 				logger.log("Post Message failed with Code: " +response.getStatusLine().getStatusCode());
 				logger.log("Post Message failed reason: " +response.getStatusLine().getReasonPhrase());
 				logger.log("Post Message response body: "+response.toString());
 				
 				throw new RuntimeException("Failed : HTTP error code : " + response.getStatusLine().getStatusCode());
 			}
-
-			BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
-			String output;
 			StringBuilder outputStr = new StringBuilder();
-			logger.log("Response from FHIR Validator .... ");
-			// Write the response back to invoking program
-			while ((output = br.readLine()) != null) {
-				outputStr.append(output);
-			}
+			
+			if (response !=null ) {
+				BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())));
+				String output;
+				logger.log("Response from FHIR Validator .... ");
+				// Write the response back to invoking program
+				while ((output = br.readLine()) != null) {
+					outputStr.append(output);
+				}
+				br.close();
+			}			
 			apiGatewayProxyResponseEvent.setBody(outputStr.toString());
 			logger.log(outputStr.toString());
-			br.close();
-			httpClient.getConnectionManager().shutdown();
-
 		} catch (ClientProtocolException e) {
 			logger.log("Failed with ClientProtocolException "+e.getMessage() );
 			throw new RuntimeException("Failed with ClientProtocolException: " + e.getMessage());
