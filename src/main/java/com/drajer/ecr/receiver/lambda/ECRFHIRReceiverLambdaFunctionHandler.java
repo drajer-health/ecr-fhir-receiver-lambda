@@ -33,16 +33,23 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 			throw new RuntimeException("HTTP_POST_URL Environment variable not configured");
 		}
 		logger.log("HTTP Post URL " + httpPostUrl);
+		// Create a instance of httpClient and forward the request
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 
 		try {
+			
+			logger.log("Headers "+request.getHeaders());
+		//	logger.log("body " + request.getBody());
 
 			Map<String, String> headers = request.getHeaders();
-			String authHeader = headers.get("Authorization");
+			String authHeader = "";
+			if (headers != null && ! headers.isEmpty()) {
+				 authHeader = headers.get("Authorization");
+			}else {
+				logger.log("No headers" );
+			}
 
 			logger.log("Token: " + authHeader);
-
-			// Create a instance of httpClient and forward the request
-			DefaultHttpClient httpClient = new DefaultHttpClient();
 
 			// Add content type as application / json
 			HttpPost postRequest = new HttpPost(httpPostUrl);
@@ -65,9 +72,6 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 			}catch(Exception e) {
 				logger.log(" In HTTP Post Exception "+e.getLocalizedMessage());
 				e.printStackTrace();
-			}finally {
-				logger.log("Closing HTTP Connection to "+httpPostUrl);
-				httpClient.getConnectionManager().shutdown();
 			}
 			
 			// Check return status and throw Runtime exception for return code != 200
@@ -91,7 +95,7 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 				br.close();
 			}			
 			apiGatewayProxyResponseEvent.setBody(outputStr.toString());
-			logger.log(outputStr.toString());
+		//	logger.log(outputStr.toString());
 		} catch (ClientProtocolException e) {
 			logger.log("Failed with ClientProtocolException "+e.getMessage() );
 			throw new RuntimeException("Failed with ClientProtocolException: " + e.getMessage());
@@ -101,6 +105,9 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 		} finally {
 //			reader.close();
 //			writer.close();
+				logger.log("Closing HTTP Connection to "+httpPostUrl);
+				httpClient.getConnectionManager().shutdown();
+	
 		}
 		return apiGatewayProxyResponseEvent;
 
