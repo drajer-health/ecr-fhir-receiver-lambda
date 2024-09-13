@@ -17,7 +17,9 @@ build:
       - target/ecr-fhir-receiver-lambda.jar
 
 .upload_and_deploy: &upload_and_deploy
-  image: amazon/aws-cli
+  image: 
+    name: amazon/aws-cli
+    entrypoint: [""]
   script:
     - aws sts get-caller-identity
     - cd target/
