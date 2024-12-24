@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -34,8 +36,15 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 		}
 		logger.log("HTTP Post URL " + httpPostUrl);
 		// Create a instance of httpClient and forward the request
-		DefaultHttpClient httpClient = new DefaultHttpClient();
+//		DefaultHttpClient httpClient = new DefaultHttpClient();
 
+		int timeout = 15;
+		RequestConfig config = RequestConfig.custom()
+		  .setConnectTimeout(timeout * 1000)
+		  .setConnectionRequestTimeout(timeout * 1000)
+		  .setSocketTimeout(timeout * 1000).build();
+		CloseableHttpClient httpClient = 
+		  HttpClientBuilder.create().setDefaultRequestConfig(config).build();		
 		try {
 			
 			logger.log("Headers "+request.getHeaders());
@@ -106,7 +115,11 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 //			reader.close();
 //			writer.close();
 				logger.log("Closing HTTP Connection to "+httpPostUrl);
-				httpClient.getConnectionManager().shutdown();
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					logger.log("Failed with close connection "+e.getMessage() );
+				}
 	
 		}
 		return apiGatewayProxyResponseEvent;
