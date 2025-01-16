@@ -18,7 +18,8 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-
+import com.amazonaws.xray.contexts.LambdaSegmentContext;
+import com.amazonaws.xray.entities.TraceHeader;
 public class ECRFHIRReceiverLambdaFunctionHandler
 		implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
@@ -27,7 +28,12 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 
 		LambdaLogger logger = context.getLogger();
 		APIGatewayProxyResponseEvent apiGatewayProxyResponseEvent = new APIGatewayProxyResponseEvent();
+		
 
+		TraceHeader tHeader = LambdaSegmentContext.getTraceHeaderFromEnvironment();
+		String traceId = tHeader.getRootTraceId().toString();
+		
+		logger.log("tHeader.getRootTraceId() ::::"+traceId);
 		// URL where the request will be forwarded
 		String httpPostUrl = System.getenv("HTTP_POST_URL");
 
@@ -67,6 +73,7 @@ public class ECRFHIRReceiverLambdaFunctionHandler
 			input.setContentType("application/json");
 			postRequest.setEntity(input);
 			postRequest.addHeader("Authorization", authHeader);
+			postRequest.addHeader("persistenceId", traceId);
 
 			logger.log("Forwarding the request to FHIR Validator with Auth Header ");
 			logger.log("Request Body Content Size "+input.getContentLength());

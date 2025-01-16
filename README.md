@@ -74,6 +74,13 @@ com.drajer.ecr.receiver.lambda.ECRFHIRReceiverLambdaFunctionHandler
 
 10) Enter
 
+11) Click on "Configuration" tab and then "Monitoring and operations tools"
+
+12) Click on "Edit" under "Additional monitoring tools"
+
+13) Click on "Enable" for "Lambda service traces"
+
+14) Click on "Save"
 ```
 Key: HTTP_POST_URL
 Value: <<THIS SHOULD BE YOUR FHIR SERVER URL FOR THE REQUEST TO BE FORWARDED>>
