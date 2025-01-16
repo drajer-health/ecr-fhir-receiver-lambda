@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.drajer.ecr.receiver</groupId>
 	<artifactId>lambda</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<packaging>jar</packaging>
 	<properties>
 	    <maven.compiler.target>17</maven.compiler.target>
@@ -77,5 +77,20 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.5.14</version>
 		</dependency>
+		
+<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-core -->
+<dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-xray-recorder-sdk-core</artifactId>
+    <version>2.18.2</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-aws-sdk -->
+<dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
+    <version>2.18.2</version>
+</dependency>
+		
 	</dependencies>
 </project>
